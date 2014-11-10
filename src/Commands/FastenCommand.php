@@ -1,9 +1,8 @@
 <?php namespace Codesleeve\LaravelStapler\Commands;
 
+use File;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use DB, View, File, Str;
 
 class FastenCommand extends Command
 {
@@ -73,15 +72,15 @@ class FastenCommand extends Command
 	{
 		$data = ['table' => $this->argument('table'), 'attachment' => $this->argument('attachment')];
 		$prefix = date('Y_m_d_His');
-		$path = app_path() . '/database/migrations';
+		$path = $this->laravel['path.database'].'/migrations';
 
 		if (!is_dir($path)) mkdir($path);
 
 		$fileName  = $path . '/' . $prefix . '_add_' . $data['attachment'] . '_fields_to_' . $data['table'] . '_table.php';
-		$data['className'] = 'Add' . ucfirst(Str::camel($data['attachment'])) . 'FieldsTo' . ucfirst(Str::camel($data['table'])) . 'Table';
+		$data['className'] = 'Add' . ucfirst(camel_case($data['attachment'])) . 'FieldsTo' . ucfirst(camel_case($data['table'])) . 'Table';
 
 		// Save the new migration to disk using the stapler migration view.
-		$migration = View::make('laravel-stapler::migration', $data)->render();
+		$migration = view('laravel-stapler::migration', $data)->render();
 		File::put($fileName, $migration);
 
 		// Dump the autoloader and print a created migration message to the console.
